@@ -30,3 +30,18 @@ jobs:
           python app.py &
           sleep 5
           curl http://127.0.0.1:5000/health
+      - name: Build Docker Image
+        run: |
+          docker build -t employee-management:${{ github.sha }} .
+      - name: Login to Docker Hub
+        uses: docker/login-action@343f7c4344501b37c26666cfcb557126833357a2 # v3.0.0   
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.ACCESS_TOKEN }}
+      - name: Push Docker Image
+        run: |
+          docker tag employee-management:${{ github.sha }} ramanjaneyalup8/employee-management:${{ github.sha }}
+          docker push ramanjaneyalup8/employee-management:${{ github.sha }}
+
+
+
