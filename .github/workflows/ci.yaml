@@ -42,6 +42,38 @@ jobs:
         run: |
           docker tag employee-management:${{ github.sha }} ramanjaneyalup8/employee-management:${{ github.sha }}
           docker push ramanjaneyalup8/employee-management:${{ github.sha }}
+  deploy:
+  name: Deploy to EC2
 
+  needs: build
+
+  runs-on: ubuntu-latest
+
+  if: github.ref == 'refs/heads/main'
+
+  steps:
+
+    - name: Execute commands on EC2
+      uses: appleboy/ssh-action@v1.0.3
+
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+
+        script: |
+          echo "Connected Successfully"
+
+          whoami
+
+          pwd
+
+          date
+
+          hostname
+
+          docker --version
+
+          docker ps
 
 
