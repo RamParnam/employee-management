@@ -50,8 +50,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-      #if: github.ref == 'refs/heads/develop'
-
     steps:
       - name: Execute commands on EC2
         uses: appleboy/ssh-action@v1.0.3
