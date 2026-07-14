@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - main
   pull_request:
     branches:
       - develop
@@ -43,37 +44,36 @@ jobs:
           docker tag employee-management:${{ github.sha }} ramanjaneyalup8/employee-management:${{ github.sha }}
           docker push ramanjaneyalup8/employee-management:${{ github.sha }}
   deploy:
-  name: Deploy to EC2
+    name: Deploy to EC2
 
-  needs: build
+    needs: build
 
-  runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
 
-  steps:
+    steps:
+      - name: Execute commands on EC2
+        uses: appleboy/ssh-action@v1.0.3
 
-    - name: Execute commands on EC2
-      uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
 
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Connected Successfully"
 
-        script: |
-          echo "Connected Successfully"
+            whoami
 
-          whoami
+            pwd
 
-          pwd
+            date
 
-          date
+            hostname
 
-          hostname
+            docker --version
 
-          docker --version
-
-          docker ps
+            docker ps
 
 
