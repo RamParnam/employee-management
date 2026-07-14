@@ -50,8 +50,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/develop'
-
     steps:
       - name: Execute commands on EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -59,7 +57,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST_ADDRESS }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
 
           script: |
             echo "Connected Successfully"
