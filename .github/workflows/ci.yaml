@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - develop
-      - main
-      - sprint-7
   pull_request:
     branches:
       - develop #this triggers workflow when PR is raised to develop branch 
@@ -38,11 +36,13 @@ jobs:
             -t employee-management:${{ github.sha }} \
             -t employee-management:latest .
       - name: Login to Docker Hub
+        if: github.event_name == 'push'
         uses: docker/login-action@v3 
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.ACCESS_TOKEN }}
       - name: Push Docker Image
+        if: github.event_name == 'push'
         run: |
           docker tag employee-management:${{ github.sha }} ramanjaneyalup8/employee-management:${{ github.sha }}
           docker tag employee-management:latest ramanjaneyalup8/employee-management:latest
