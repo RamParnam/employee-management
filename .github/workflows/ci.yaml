@@ -8,7 +8,7 @@ on:
       - sprint-7
   pull_request:
     branches:
-      - develop
+      - develop #this triggers workflow when PR is raised to develop branch 
 
 jobs:
   build:
