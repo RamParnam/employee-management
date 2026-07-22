@@ -48,42 +48,43 @@ jobs:
 
           docker push ramanjaneyalup8/employee-management:${{ github.sha }}
           docker push ramanjaneyalup8/employee-management:latest
-  deploy:
-    name: Deploy to EC2
-
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/develop'
-
-    steps:
-
-      - name: Copy deploy.sh to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST_ADDRESS }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
-          source: "scripts/deploy.sh"
-          target: "/home/ubuntu/deployment"
-
-      - name: Execute deployment script on EC2
-        uses: appleboy/ssh-action@v1.2.0
 
 
-        with:
-          host: ${{ secrets.EC2_HOST_ADDRESS }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+          #  deploy:
+          #name: Deploy to EC2
 
-          script: |
-            chmod +x /home/ubuntu/deployment/scripts/deploy.sh
+    #needs: build
 
-            echo "Starting deployment..."
+    #runs-on: ubuntu-latest
 
-            /home/ubuntu/deployment/scripts/deploy.sh \
-            ramanjaneyalup8/employee-management:${{ github.sha }} \
-            employee-management
+    #if: github.ref == 'refs/heads/develop'
 
+    #steps:
+
+      #- name: Copy deploy.sh to EC2
+        #uses: appleboy/scp-action@v0.1.7
+        #with:
+          #host: ${{ secrets.EC2_HOST_ADDRESS }}
+          #username: ${{ secrets.EC2_USERNAME }}
+          #key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+          #source: "scripts/deploy.sh"
+          #target: "/home/ubuntu/deployment"
+
+      #- name: Execute deployment script on EC2
+        #uses: appleboy/ssh-action@v1.2.0
+
+
+        #with:
+          #host: ${{ secrets.EC2_HOST_ADDRESS }}
+          #username: ${{ secrets.EC2_USERNAME }}
+          #key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+
+          #script: |
+            #chmod +x /home/ubuntu/deployment/scripts/deploy.sh
+
+            #echo "Starting deployment..."
+
+            #/home/ubuntu/deployment/scripts/deploy.sh \
+            #ramanjaneyalup8/employee-management:${{ github.sha }} \
+            #employee-management
 
