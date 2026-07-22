@@ -5,9 +5,10 @@ on:
     branches:
       - develop
       - main
+      - sprint-7
   pull_request:
     branches:
-      - develop
+      - develop #this triggers workflow when PR is raised to develop branch 
 
 jobs:
   build:
@@ -33,7 +34,9 @@ jobs:
           curl http://127.0.0.1:5000/health
       - name: Build Docker Image
         run: |
-          docker build -t employee-management:${{ github.sha }} .
+          docker build \
+            -t employee-management:${{ github.sha }} \
+            -t employee-management:latest .
       - name: Login to Docker Hub
         uses: docker/login-action@v3 
         with:
@@ -42,36 +45,47 @@ jobs:
       - name: Push Docker Image
         run: |
           docker tag employee-management:${{ github.sha }} ramanjaneyalup8/employee-management:${{ github.sha }}
+          docker tag employee-management:latest ramanjaneyalup8/employee-management:latest
+
           docker push ramanjaneyalup8/employee-management:${{ github.sha }}
-  deploy:
-    name: Deploy to EC2
+          docker push ramanjaneyalup8/employee-management:latest
 
-    needs: build
 
-    runs-on: ubuntu-latest
+          #  deploy:
+          #name: Deploy to EC2
 
-    steps:
-      - name: Execute commands on EC2
-        uses: appleboy/ssh-action@v1.0.3
+    #needs: build
 
-        with:
-          host: ${{ secrets.EC2_HOST_ADDRESS }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+    #runs-on: ubuntu-latest
 
-          script: |
-            echo "Connected Successfully"
+    #if: github.ref == 'refs/heads/develop'
 
-            whoami
+    #steps:
 
-            pwd
+      #- name: Copy deploy.sh to EC2
+        #uses: appleboy/scp-action@v0.1.7
+        #with:
+          #host: ${{ secrets.EC2_HOST_ADDRESS }}
+          #username: ${{ secrets.EC2_USERNAME }}
+          #key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+          #source: "scripts/deploy.sh"
+          #target: "/home/ubuntu/deployment"
 
-            date
+      #- name: Execute deployment script on EC2
+        #uses: appleboy/ssh-action@v1.2.0
 
-            hostname
 
-            docker --version
+        #with:
+          #host: ${{ secrets.EC2_HOST_ADDRESS }}
+          #username: ${{ secrets.EC2_USERNAME }}
+          #key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
 
-            docker ps
+          #script: |
+            #chmod +x /home/ubuntu/deployment/scripts/deploy.sh
 
+            #echo "Starting deployment..."
+
+            #/home/ubuntu/deployment/scripts/deploy.sh \
+            #ramanjaneyalup8/employee-management:${{ github.sha }} \
+            #employee-management
 
