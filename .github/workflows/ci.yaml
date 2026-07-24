@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - develop
-      - main
-      - sprint-7
   pull_request:
     branches:
       - develop #this triggers workflow when PR is raised to develop branch 
@@ -38,11 +36,13 @@ jobs:
             -t employee-management:${{ github.sha }} \
             -t employee-management:latest .
       - name: Login to Docker Hub
+        if: github.event_name == 'push'
         uses: docker/login-action@v3 
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.ACCESS_TOKEN }}
       - name: Push Docker Image
+        if: github.event_name == 'push'
         run: |
           docker tag employee-management:${{ github.sha }} ramanjaneyalup8/employee-management:${{ github.sha }}
           docker tag employee-management:latest ramanjaneyalup8/employee-management:latest
@@ -51,41 +51,50 @@ jobs:
           docker push ramanjaneyalup8/employee-management:latest
 
 
-          #  deploy:
-          #name: Deploy to EC2
+  deploy:
+    name: Deploy to EC2
 
-    #needs: build
+    needs: build
 
-    #runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-    #if: github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
 
-    #steps:
+    steps:
 
-      #- name: Copy deploy.sh to EC2
-        #uses: appleboy/scp-action@v0.1.7
-        #with:
-          #host: ${{ secrets.EC2_HOST_ADDRESS }}
-          #username: ${{ secrets.EC2_USERNAME }}
-          #key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
-          #source: "scripts/deploy.sh"
-          #target: "/home/ubuntu/deployment"
+      - name: Checkout Repositor
+        uses: actions/checkout@v4
+      - name: Debug GitHub Context
+        run: |
+          echo "Event Name: ${{ github.event_name }}"
+          echo "Git Ref: ${{ github.ref }}"
+          echo "Ref Name: ${{ github.ref_name }}"
+          echo "SHA: ${{ github.sha }}"
 
-      #- name: Execute deployment script on EC2
-        #uses: appleboy/ssh-action@v1.2.0
+      - name: Copy deploy.sh to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST_ADDRESS }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+          source: "scripts/deploy.sh"
+          target: "/home/ubuntu/deployment"
+
+      - name: Execute deployment script on EC2
+        uses: appleboy/ssh-action@v1.2.0
 
 
-        #with:
-          #host: ${{ secrets.EC2_HOST_ADDRESS }}
-          #username: ${{ secrets.EC2_USERNAME }}
-          #key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
+        with:
+          host: ${{ secrets.EC2_HOST_ADDRESS }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_PEM }}
 
-          #script: |
-            #chmod +x /home/ubuntu/deployment/scripts/deploy.sh
+          script: |
+            chmod +x /home/ubuntu/deployment/scripts/deploy.sh
 
-            #echo "Starting deployment..."
+            echo "Starting deployment..."
 
-            #/home/ubuntu/deployment/scripts/deploy.sh \
-            #ramanjaneyalup8/employee-management:${{ github.sha }} \
-            #employee-management
+            /home/ubuntu/deployment/scripts/deploy.sh \
+            ramanjaneyalup8/employee-management:${{ github.sha }} \
+            employee-management
 
