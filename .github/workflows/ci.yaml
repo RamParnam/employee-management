@@ -95,6 +95,5 @@ jobs:
             echo "Starting deployment..."
 
             /home/ubuntu/deployment/scripts/deploy.sh \
-            ramanjaneyalup8/employee-management:${{ github.sha }} \
-            employee-management
+            ramanjaneyalup8/employee-management:${{ github.sha }} 
 
