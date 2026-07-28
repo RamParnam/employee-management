@@ -68,7 +68,41 @@ echo "Checking application health..."
 
 curl --fail http://localhost:"$NEW_PORT"/health
 
+
+echo "Updating Nginx configuration..."
+
+sudo sed -i "s/$ACTIVE_PORT/$NEW_PORT/" /etc/nginx/sites-available/default
+
+echo "Validating Nginx configuration..."
+
+sudo nginx -t
+
+echo "Reloading Nginx..."
+
+sudo systemctl reload nginx
+
+echo "Verifying application through Nginx..."
+
+curl --fail http://localhost/health
+
+
 echo ""
-echo "================================="
-echo "Deployment Completed Successfully"
-echo "================================="
+echo "Waiting before cleaning old deployment..."
+sleep 300
+
+echo "Stopping old container..."
+
+docker stop "$ACTIVE_CONTAINER"
+
+echo "Removing old container..."
+
+docker rm "$ACTIVE_CONTAINER"
+
+
+
+echo ""
+echo "==========================================="
+echo "Blue-Green Deployment Completed Successfully"
+echo "Active Container : $NEW_CONTAINER"
+echo "Active Port      : $NEW_PORT"
+echo "==========================================="
