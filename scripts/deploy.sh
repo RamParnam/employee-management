@@ -107,9 +107,6 @@ echo "Deployment State File"
 
 sudo cat /opt/employee-management/deployment.state
 
-echo ""
-echo "Waiting before cleaning old deployment..."
-sleep 120
 
 
 
