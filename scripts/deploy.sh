@@ -86,17 +86,30 @@ echo "Verifying application through Nginx..."
 curl --fail http://localhost/health
 
 
+
+echo "Updating deployment state..."
+
+cat <<EOF | sudo tee /opt/employee-management/deployment.state > /dev/null
+ACTIVE_CONTAINER=$NEW_CONTAINER
+ACTIVE_PORT=$NEW_PORT
+
+PREVIOUS_CONTAINER=$ACTIVE_CONTAINER
+PREVIOUS_PORT=$ACTIVE_PORT
+
+IMAGE_NAME=$IMAGE_NAME
+
+DEPLOY_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+
+DEPLOY_STATUS=SUCCESS
+EOF
+
+echo "Deployment State File"
+
+sudo cat /opt/employee-management/deployment.state
+
 echo ""
 echo "Waiting before cleaning old deployment..."
-sleep 300
-
-echo "Stopping old container..."
-
-docker stop "$ACTIVE_CONTAINER"
-
-echo "Removing old container..."
-
-docker rm "$ACTIVE_CONTAINER"
+sleep 120
 
 
 
@@ -106,3 +119,6 @@ echo "Blue-Green Deployment Completed Successfully"
 echo "Active Container : $NEW_CONTAINER"
 echo "Active Port      : $NEW_PORT"
 echo "==========================================="
+
+echo "Current Active   : $NEW_CONTAINER"
+echo "Previous Active       : $ACTIVE_CONTAINER (kept for rollback)"
